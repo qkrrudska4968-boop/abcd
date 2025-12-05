@@ -1,184 +1,80 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>간단 계산기</title>
-    <style>
-        /* CSS: 디자인 */
-        .calculator {
-            width: 300px;
-            margin: 50px auto;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            background-color: #f9f9f9;
-        }
-        #display {
-            width: 95%;
-            height: 50px;
-            margin-bottom: 10px;
-            padding: 10px;
-            font-size: 2em;
-            text-align: right;
-            border: 1px solid #aaa;
-            border-radius: 5px;
-            background-color: #fff;
-        }
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-        button {
-            padding: 20px;
-            font-size: 1.2em;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background-color: #e0e0e0;
-        }
-        button:hover {
-            background-color: #d0d0d0;
-        }
-        .operator {
-            background-color: #ff9500;
-            color: white;
-        }
-        .operator:hover {
-            background-color: #e08b00;
-        }
-        .clear {
-            background-color: #ff3b30;
-            color: white;
-        }
-        .clear:hover {
-            background-color: #e03028;
-        }
-        .equals {
-            background-color: #4cd964;
-            color: white;
-            grid-column: span 1; /* '=' 버튼을 한 칸만 차지하도록 설정 */
-        }
-        .equals:hover {
-            background-color: #40c056;
-        }
-        .span-2 {
-            grid-column: span 2; /* '0' 버튼을 두 칸 차지하도록 설정 */
-        }
-    </style>
-</head>
-<body>
+import streamlit as st
 
-<div class="calculator">
-    <input type="text" id="display" disabled value="0">
-    
-    <div class="buttons">
-        <button class="clear span-2" onclick="clearDisplay()">AC</button>
-        <button class="operator" onclick="appendOperator('/')">/</button>
-        <button class="operator" onclick="appendOperator('*')">*</button>
-        
-        <button onclick="appendNumber(7)">7</button>
-        <button onclick="appendNumber(8)">8</button>
-        <button onclick="appendNumber(9)">9</button>
-        <button class="operator" onclick="appendOperator('-')">-</button>
-        
-        <button onclick="appendNumber(4)">4</button>
-        <button onclick="appendNumber(5)">5</button>
-        <button onclick="appendNumber(6)">6</button>
-        <button class="operator" onclick="appendOperator('+')">+</button>
-        
-        <button onclick="appendNumber(1)">1</button>
-        <button onclick="appendNumber(2)">2</button>
-        <button onclick="appendNumber(3)">3</button>
-        <button class="equals" onclick="calculate()">=</button>
+# --- 웹페이지 기본 설정 (제목) ---
+st.set_page_config(page_title="간단 계산기", layout="centered")
 
-        <button class="span-2" onclick="appendNumber(0)">0</button>
-        <button onclick="appendNumber('.')">.</button>
-    </div>
-</div>
+st.title("간단 계산기 🧮")
 
-<script>
-    // JavaScript: 계산 로직
-    const display = document.getElementById('display');
-    let currentInput = '0';
-    let previousInput = null;
-    let operator = null;
+# --- CSS 스타일 적용 (계산기 모양) ---
+# 기존 HTML/CSS 디자인을 Streamlit에서도 사용하고 싶다면 st.markdown을 사용합니다.
+st.markdown("""
+<style>
+/* CSS 영역 */
+.calculator {
+    width: 300px; /* 여기서 300px 같은 단위 사용 가능 */
+    margin: 50px auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+</style>
+""", unsafe_allow_html=True)
 
-    function updateDisplay(value) {
-        display.value = value;
-    }
+# --- 계산기 기능 구현 ---
+# 1. 숫자 입력 위젯
+st.subheader("숫자를 입력해 주세요")
 
-    // 숫자 버튼 클릭 시
-    function appendNumber(number) {
-        if (currentInput === '0' && number !== '.') {
-            currentInput = String(number);
-        } else if (number === '.' && currentInput.includes('.')) {
-            return; // 이미 소수점이 있으면 무시
-        } else {
-            currentInput += String(number);
-        }
-        updateDisplay(currentInput);
-    }
+# session_state를 사용하여 값 유지
+if 'num1' not in st.session_state:
+    st.session_state['num1'] = 0
+if 'num2' not in st.session_state:
+    st.session_state['num2'] = 0
+if 'result' not in st.session_state:
+    st.session_state['result'] = 0
 
-    // 연산자 버튼 클릭 시
-    function appendOperator(op) {
-        if (previousInput !== null && operator !== null) {
-            calculate(); // 연산자가 이미 있으면 중간 계산 실행
-        }
-        previousInput = parseFloat(currentInput); // 현재 값을 첫 번째 숫자로 저장
-        operator = op; // 연산자 저장
-        currentInput = '0'; // 다음 숫자 입력을 위해 초기화
-        updateDisplay(previousInput + ' ' + operator); // 중간 상태 표시
-    }
+num1 = st.number_input("첫 번째 숫자:", value=st.session_state['num1'], step=1)
+num2 = st.number_input("두 번째 숫자:", value=st.session_state['num2'], step=1)
+st.session_state['num1'] = num1
+st.session_state['num2'] = num2
 
-    // 초기화 버튼 클릭 시 (AC)
-    function clearDisplay() {
-        currentInput = '0';
-        previousInput = null;
-        operator = null;
-        updateDisplay(currentInput);
-    }
 
-    // 계산 버튼 클릭 시 (=)
-    function calculate() {
-        if (previousInput === null || operator === null) return;
+# 2. 연산 버튼
+col1, col2, col3, col4 = st.columns(4)
+operation = None
 
-        const secondNum = parseFloat(currentInput);
-        let result;
+with col1:
+    if st.button("+"):
+        operation = '+'
+with col2:
+    if st.button("-"):
+        operation = '-'
+with col3:
+    if st.button("×"):
+        operation = '*'
+with col4:
+    if st.button("÷"):
+        operation = '/'
 
-        switch (operator) {
-            case '+':
-                result = previousInput + secondNum;
-                break;
-            case '-':
-                result = previousInput - secondNum;
-                break;
-            case '*':
-                result = previousInput * secondNum;
-                break;
-            case '/':
-                // 0으로 나누는 경우 처리
-                if (secondNum === 0) {
-                    result = 'Error';
-                } else {
-                    result = previousInput / secondNum;
-                }
-                break;
-            default:
-                return;
-        }
+# 3. 계산 로직
+if operation:
+    try:
+        if operation == '+':
+            st.session_state['result'] = num1 + num2
+        elif operation == '-':
+            st.session_state['result'] = num1 - num2
+        elif operation == '*':
+            st.session_state['result'] = num1 * num2
+        elif operation == '/':
+            if num2 != 0:
+                st.session_state['result'] = num1 / num2
+            else:
+                st.error("0으로 나눌 수 없습니다.")
+                st.session_state['result'] = "오류"
+    except Exception as e:
+        st.error(f"계산 중 오류 발생: {e}")
 
-        // 결과 업데이트 및 상태 초기화
-        currentInput = String(result);
-        previousInput = null;
-        operator = null;
-        updateDisplay(currentInput);
-    }
-
-    // 초기 로드 시 디스플레이 설정
-    updateDisplay(currentInput);
-</script>
-</body>
-</html>
+# --- 결과 출력 ---
+st.subheader("결과")
+st.code(f"{st.session_state['result']}")
