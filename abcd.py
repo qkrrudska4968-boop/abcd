@@ -3,7 +3,7 @@ import streamlit as st
 # --- 1. 웹페이지 기본 설정 ---
 st.set_page_config(page_title="완벽한 계산기", layout="centered")
 
-# --- 2. CSS 스타일 적용 (계산기 모양 구현) ---
+# --- 2. CSS 스타일 적용 (일반 계산기 모양 구현) ---
 st.markdown("""
 <style>
 /* Streamlit 기본 스타일 숨기기 (필요한 경우) */
@@ -49,20 +49,4 @@ div.stButton > button:first-child {
     color: white; 
 }
 
-/* 숫자 및 특수 버튼 (0-9, 소수점) */
-.gray-button > button:first-child {
-    background-color: #505050; 
-}
-
-/* 연산자 버튼 (+, -, *, /) */
-.orange-button > button:first-child {
-    background-color: #FF9500;
-}
-
-/* AC 버튼 */
-.red-button > button:first-child {
-    background-color: #FF3B30;
-}
-
-/* Equal (=) 버튼 */
-.green-button > button:
+/* 숫자 및 특수 버튼 (0
